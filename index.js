@@ -19,6 +19,7 @@ async function run() {
     const DataBase = client.db("DIMITA_Ecommerce");
     const product = DataBase.collection("product");
     const userCollection = DataBase.collection("user_collection");
+    const orderCollection = DataBase.collection("order_collection");
 
     // Get all product data start
     app.get("/product", async (req, res) => {
@@ -61,11 +62,24 @@ async function run() {
 
     // post user data in userCollection start
     app.post("/user_collection", async (req, res) => {
-      const data = req.body;
-      const postUserData = await userCollection.insertOne(data);
-      res.send(postUserData);
+      const userInfo = req.body;
+      const email = req.body.email;
+      const query = { email: email };
+      const find = await userCollection.findOne(query);
+      if (find) {
+        return;
+      } else {
+        const post = await userCollection.insertOne(userInfo);
+        res.send(post);
+      }
     });
     // post user data in userCollection end
+    // order collection start
+    app.post("/place_order", async (req, res) => {
+      const order = req.body;
+      const post = await orderCollection.insertOne(order);
+      res.send(post);
+    });
   } finally {
   }
 }
